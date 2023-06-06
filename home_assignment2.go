@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -42,122 +41,102 @@ func (zk *Zookeeper) ChangeHome(t *Tiger, l *Lion, li *Lioness, d *Dolphin, b *B
 }
 
 type Cage struct {
-	size string `json:"size"`
-	name string `json:"name"`
+	Size string `json:"size"`
+	Name string `json:"name"`
 }
 
 type Lake struct {
-	size  string  `json:"size"`
-	depth float64 `json:"depth"`
-	name  string  `json:"name"`
+	Size  string  `json:"size"`
+	Depth float64 `json:"depth"`
+	Name  string  `json:"name"`
 }
 
 type Animal struct {
-	name      string      `json:"name"`
-	neighbour interface{} `json:"neighbour"`
-	home      interface{} `json:"home"`
+	Name string      `json:"name"`
+	Home interface{} `json:"home"`
 }
 
 type Cat struct {
 	Animal
-	paws int  `json:"paws"`
-	mane bool `json:"mane"`
+	Paws int  `json:"paws"`
+	Mane bool `json:"mane"`
 }
 
 type Tiger struct {
 	Cat
-	voice string `json:"voice"`
-	//neighbour Lion
+	Voice string `json:"voice"`
 }
 
-func (t *Tiger) SetData(l Lion) {
-	t.name = "TIGER"
-	t.neighbour = l
+func (t *Tiger) SetData() {
+	t.Name = "TIGER"
 }
 
 func (t *Tiger) ChangeHome(l Lake, c Cage) {
-	if t.home == l {
-		t.home = c
-	} else if t.home == c {
-		t.home = l
+	if t.Home == l {
+		t.Home = c
+	} else if t.Home == c {
+		t.Home = l
 	}
 }
 
 type Lion struct {
 	Cat
-	//neighbour Tiger
 }
 
-func (lion *Lion) SetData(li Lioness) {
-	lion.name = "LION"
-	lion.neighbour = li
+func (lion *Lion) SetData() {
+	lion.Name = "LION"
 }
 
 func (lion *Lion) ChangeHome(l Lake, c Cage) {
-	if lion.home == l {
-		lion.home = c
-	} else if lion.home == c {
-		lion.home = l
+	if lion.Home == l {
+		lion.Home = c
+	} else if lion.Home == c {
+		lion.Home = l
 	}
 }
 
 type Lioness struct {
 	Cat
-	//neighbour Lion
 }
 
-func (li *Lioness) SetData(l Lion) {
-	li.name = "LIONESS"
-	li.neighbour = l
-	li.mane = false
+func (li *Lioness) SetData() {
+	li.Name = "LIONESS"
+	li.Mane = false
 }
 
 func (li *Lioness) ChangeHome(l Lake, c Cage) {
-	if li.home == l {
-		li.home = c
-	} else if li.home == c {
-		li.home = l
+	if li.Home == l {
+		li.Home = c
+	} else if li.Home == c {
+		li.Home = l
 	}
 }
 
 type Bear struct {
 	Animal
-	color string `json:"color"`
-	//neighbour Lion
+	Color string `json:"color"`
 }
 
 func (b *Bear) ChangeHome(l Lake, c Cage) {
-	if b.home == l {
-		b.home = c
-	} else if b.home == c {
-		b.home = l
+	if b.Home == l {
+		b.Home = c
+	} else if b.Home == c {
+		b.Home = l
 	}
 }
 
 type Dolphin struct {
 	Animal
-	ability string `json:"ability"`
+	Ability string `json:"ability"`
 }
 
 func (d *Dolphin) ChangeHome(l Lake, c Cage) {
-	if d.home == l {
-		d.home = c
-	} else if d.home == c {
-		d.home = l
+	if d.Home == l {
+		d.Home = c
+	} else if d.Home == c {
+		d.Home = l
 	}
 }
-
-//func changeHome(animals []interface{}, lake Lake, cage Cage) {
-//	for i := range animals {
-//		if a, ok := animals[i].(Animal); ok {
-//			if a.home == cage {
-//				a.home = lake
-//			} else if a.home == lake {
-//				a.home = cage
-//			}
-//		}
-//	}
-//}
 
 func main() {
 	zk := Zookeeper{
@@ -166,28 +145,27 @@ func main() {
 	}
 
 	cage := Cage{
-		size: big,
-		name: "cage",
+		Size: big,
+		Name: "cage",
 	}
 
 	lake := Lake{
-		size:  small,
-		depth: 5.6,
-		name:  "lake",
+		Size:  small,
+		Depth: 5.6,
+		Name:  "lake",
 	}
 
 	cat := Cat{
 		Animal: Animal{
-			neighbour: nil,
-			home:      cage,
+			Home: cage,
 		},
-		paws: 4,
-		mane: true,
+		Paws: 4,
+		Mane: true,
 	}
 
 	tiger := Tiger{
 		Cat:   cat,
-		voice: "roar",
+		Voice: "roar",
 	}
 
 	lion := Lion{
@@ -200,40 +178,23 @@ func main() {
 
 	bear := Bear{
 		Animal: Animal{
-			name:      "BEAR",
-			neighbour: nil,
-			home:      cage,
+			Name: "BEAR",
+			Home: cage,
 		},
-		color: "brown",
+		Color: "brown",
 	}
 
 	dolphin := Dolphin{
 		Animal: Animal{
-			name:      "DOLPHIN",
-			neighbour: nil,
-			home:      lake,
+			Name: "DOLPHIN",
+			Home: lake,
 		},
-		ability: "swim",
+		Ability: "swim",
 	}
 
-	tiger.SetData(lion)
-	lion.SetData(lioness)
-	lioness.SetData(lion)
-
-	//не вийшло таким чином змінити житло, ідеї закінчились як це правильно зробити(
-	//прийшлось писати для кожної тварини окрему функцію
-	//changeHome([]interface{}{tiger, lion, lioness, bear, dolphin}, lake, cage)
-
-	animals := []interface{}{tiger, lion, lioness, dolphin, bear}
-	msg, err := json.Marshal(animals)
-
-	if err != nil {
-		panic(err)
-	}
-
-	//[{},{},{},{},{}] чомусь ця фунцкія виводить пустий результат(
-	fmt.Println(string(msg))
-	//fmt.Println(animals)
+	tiger.SetData()
+	lion.SetData()
+	lioness.SetData()
 
 	fmt.Println(zk)
 
