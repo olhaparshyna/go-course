@@ -30,30 +30,19 @@ func (zk Zookeeper) String() string {
 	return zk.Info()
 }
 
-func (zk *Zookeeper) ChangeHome(t *Tiger, l *Lion, li *Lioness, d *Dolphin, b *Bear, lake Lake, c Cage) {
-	t.ChangeHome(lake, c)
-	l.ChangeHome(lake, c)
-	li.ChangeHome(lake, c)
-	d.ChangeHome(lake, c)
-	b.ChangeHome(lake, c)
+func (zk *Zookeeper) ChangeHome(t *Tiger, l *Lion, li *Lioness, d *Dolphin, b *Bear) {
+	t.ChangeHome()
+	l.ChangeHome()
+	li.ChangeHome()
+	d.ChangeHome()
+	b.ChangeHome()
 
 	fmt.Println("Check animals")
 }
 
-type Cage struct {
-	Size string `json:"size"`
-	Name string `json:"name"`
-}
-
-type Lake struct {
-	Size  string  `json:"size"`
-	Depth float64 `json:"depth"`
-	Name  string  `json:"name"`
-}
-
 type Animal struct {
-	Name string      `json:"name"`
-	Home interface{} `json:"home"`
+	Name string `json:"name"`
+	Home string `json:"home"`
 }
 
 type Cat struct {
@@ -71,11 +60,11 @@ func (t *Tiger) SetData() {
 	t.Name = "TIGER"
 }
 
-func (t *Tiger) ChangeHome(l Lake, c Cage) {
-	if t.Home == l {
-		t.Home = c
-	} else if t.Home == c {
-		t.Home = l
+func (t *Tiger) ChangeHome() {
+	if t.Home == "lake" {
+		t.Home = "cage"
+	} else {
+		t.Home = "lake"
 	}
 }
 
@@ -87,11 +76,11 @@ func (lion *Lion) SetData() {
 	lion.Name = "LION"
 }
 
-func (lion *Lion) ChangeHome(l Lake, c Cage) {
-	if lion.Home == l {
-		lion.Home = c
-	} else if lion.Home == c {
-		lion.Home = l
+func (lion *Lion) ChangeHome() {
+	if lion.Home == "lake" {
+		lion.Home = "cage"
+	} else {
+		lion.Home = "lake"
 	}
 }
 
@@ -104,11 +93,11 @@ func (li *Lioness) SetData() {
 	li.Mane = false
 }
 
-func (li *Lioness) ChangeHome(l Lake, c Cage) {
-	if li.Home == l {
-		li.Home = c
-	} else if li.Home == c {
-		li.Home = l
+func (li *Lioness) ChangeHome() {
+	if li.Home == "lake" {
+		li.Home = "cage"
+	} else {
+		li.Home = "lake"
 	}
 }
 
@@ -117,11 +106,11 @@ type Bear struct {
 	Color string `json:"color"`
 }
 
-func (b *Bear) ChangeHome(l Lake, c Cage) {
-	if b.Home == l {
-		b.Home = c
-	} else if b.Home == c {
-		b.Home = l
+func (b *Bear) ChangeHome() {
+	if b.Home == "lake" {
+		b.Home = "cage"
+	} else {
+		b.Home = "lake"
 	}
 }
 
@@ -130,11 +119,11 @@ type Dolphin struct {
 	Ability string `json:"ability"`
 }
 
-func (d *Dolphin) ChangeHome(l Lake, c Cage) {
-	if d.Home == l {
-		d.Home = c
-	} else if d.Home == c {
-		d.Home = l
+func (d *Dolphin) ChangeHome() {
+	if d.Home == "lake" {
+		d.Home = "cage"
+	} else {
+		d.Home = "lake"
 	}
 }
 
@@ -144,20 +133,9 @@ func main() {
 		age:  40,
 	}
 
-	cage := Cage{
-		Size: big,
-		Name: "cage",
-	}
-
-	lake := Lake{
-		Size:  small,
-		Depth: 5.6,
-		Name:  "lake",
-	}
-
 	cat := Cat{
 		Animal: Animal{
-			Home: cage,
+			Home: "cage",
 		},
 		Paws: 4,
 		Mane: true,
@@ -179,7 +157,7 @@ func main() {
 	bear := Bear{
 		Animal: Animal{
 			Name: "BEAR",
-			Home: cage,
+			Home: "cage",
 		},
 		Color: "brown",
 	}
@@ -187,7 +165,7 @@ func main() {
 	dolphin := Dolphin{
 		Animal: Animal{
 			Name: "DOLPHIN",
-			Home: lake,
+			Home: "lake",
 		},
 		Ability: "swim",
 	}
@@ -198,10 +176,10 @@ func main() {
 
 	fmt.Println(zk)
 
-	zk.ChangeHome(&tiger, &lion, &lioness, &dolphin, &bear, lake, cage)
+	zk.ChangeHome(&tiger, &lion, &lioness, &dolphin, &bear)
 	fmt.Println("Animals might got lost")
 	fmt.Println(tiger, lion, lioness, dolphin, bear)
-	zk.ChangeHome(&tiger, &lion, &lioness, &dolphin, &bear, lake, cage)
+	zk.ChangeHome(&tiger, &lion, &lioness, &dolphin, &bear)
 	fmt.Println(tiger, lion, lioness, dolphin, bear)
 	fmt.Println("Animals are at home")
 }
