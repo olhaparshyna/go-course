@@ -38,14 +38,54 @@ type Knife struct {
 	Sharp bool
 }
 
+func (k *Knife) Use() {
+	fmt.Printf("Let's use a %s\n\n", k.Name)
+	k.Sharp = false
+}
+
+func (k *Knife) Guess(yesNoOptions []string) {
+	fmt.Printf("How do you think, is my %s still sharp\n", k.Name)
+	ChooseOption(yesNoOptions[:])
+	k.Check(GetInput())
+}
+
+func (k *Knife) Check(input int) {
+	if input == 1 && k.Sharp == true {
+		fmt.Printf("You are right, it is %t", k.Sharp)
+	} else if input == 2 && k.Sharp == false {
+		fmt.Printf("You are right, it is %t", k.Sharp)
+	} else {
+		fmt.Println("You are wrong\n")
+	}
+}
+
 type Flashlight struct {
 	Name       string
 	Brightness string
 	Battery    int
 }
 
+func (f *Flashlight) Use(yesNoOptions []string) {
+	fmt.Printf("It's too dark here!\nShould I use a %s\n", f.Name)
+	ChooseOption(yesNoOptions[:])
+	if GetInput() == 1 {
+		f.ReduceBattery()
+		fmt.Printf("Oh, no %s's battary is now %d\n\n", f.Name, f.Battery)
+	} else {
+		fmt.Println("Well, save the battery!\n\n")
+	}
+}
+
+func (f *Flashlight) ReduceBattery() {
+	f.Battery--
+}
+
 type Animal struct {
 	Name string
+}
+
+func FindAminal(a *Animal) {
+	fmt.Printf("Here is a %s\n", a.Name)
 }
 
 type Box struct {
@@ -60,7 +100,7 @@ func (b *Box) Find() {
 func (b *Box) GuessCode() {
 	fmt.Println("Please guess a code")
 	for {
-		number := CheckInput()
+		number := GetInput()
 
 		if b.Code == number {
 			fmt.Println("Congratulation!!!!! Now you are free!!!!")
@@ -80,55 +120,15 @@ func (b *Box) Events() {
 	b.GuessCode()
 }
 
-func FindAminal(a *Animal) {
-	fmt.Printf("Here is a %s\n", a.Name)
-}
-
-func (k *Knife) Use() {
-	fmt.Printf("Let's use a %s\n\n", k.Name)
-	k.Sharp = false
-}
-
-func (k *Knife) Guess(yesNoOptions [2]string) {
-	fmt.Printf("How do you think, is my %s still sharp\n", k.Name)
-	ChooseOption(yesNoOptions[:])
-	k.Check(CheckInput())
-}
-
-func (k *Knife) Check(input int) {
-	if input == 1 && k.Sharp == true {
-		fmt.Printf("You are right, it is %t", k.Sharp)
-	} else if input == 2 && k.Sharp == false {
-		fmt.Printf("You are right, it is %t", k.Sharp)
-	} else {
-		fmt.Println("You are wrong\n")
-	}
-}
-
-func EatAnimal(yesNoOptions [2]string, k *Knife) {
+func EatAnimal(yesNoOptions []string, k *Knife) {
 	fmt.Println("I am so hungry, maybe i can cook it?")
 	ChooseOption(yesNoOptions[:])
-	if CheckInput() == 1 {
+	if GetInput() == 1 {
 		k.Use()
 		k.Guess(yesNoOptions)
 	} else {
 		fmt.Println("Ok, let's go futher!\n")
 	}
-}
-
-func (f *Flashlight) Use(yesNoOptions [2]string) {
-	fmt.Printf("It's too dark here!\nShould I use a %s\n", f.Name)
-	ChooseOption(yesNoOptions[:])
-	if CheckInput() == 1 {
-		f.ReduceBattery()
-		fmt.Printf("Oh, no %s's battary is now %d\n\n", f.Name, f.Battery)
-	} else {
-		fmt.Println("Well, save the battery!\n\n")
-	}
-}
-
-func (f *Flashlight) ReduceBattery() {
-	f.Battery--
 }
 
 type Belongings struct {
@@ -159,10 +159,25 @@ func ChooseOption(options []string) {
 	fmt.Println("Please, make your choice and enter a number!")
 }
 
-func CheckInput() int {
+func GetInput() int {
 	var input int
 	fmt.Scan(&input)
 	return input
+}
+
+func CheckInput(options []string, input int) bool {
+	length := len(options)
+	numberInput := make([]int, 0)
+	for i := length; i >= 1; i-- {
+		numberInput = append(numberInput, i)
+	}
+
+	m := make(map[int]bool)
+	for _, item := range numberInput {
+		m[item] = true
+	}
+
+	return m[input]
 }
 
 func FindBag() {
@@ -211,40 +226,37 @@ func main() {
 	Greetings(survivor)
 	WakeUp()
 
-	placeOptions := [3]string{"Lake", "Cage", "Beach"}
-	yesNoOptions := [2]string{"yes", "no"}
+	placeOptions := []string{"Lake", "Cage", "Beach"}
+	yesNoOptions := []string{"yes", "no"}
+Option:
 	ChooseOption(placeOptions[:])
+	input := GetInput()
+	if CheckInput(placeOptions, input) == false {
+		fmt.Println("No-no-no only:")
+		goto Option
+	}
 
-Game:
-	for {
-		switch CheckInput() {
-		case 1:
-			fmt.Println("Oh my God, I can't swim!\n")
-			FindBag()
-			belongings.Show()
-			GoTo("look around")
-			box.Events()
-			break Game
-		case 2:
-			fmt.Println("I hope there is no wild animal next to me!")
-			FindBag()
-			belongings.Show()
-			flashlight.Use(yesNoOptions)
-			GoTo("the forest")
-			FindAminal(&deer)
-			EatAnimal(yesNoOptions, &knife)
-			box.Events()
-			break Game
-		case 3:
-			fmt.Println("Oh, what a lovely place")
-			FindBag()
-			belongings.Show()
-			GoTo("....")
-			fmt.Println("No I will stay here and have a rest")
-			break Game
-		default:
-			fmt.Println("No-no-no only:")
-			ChooseOption(placeOptions[:])
-		}
+	switch input {
+	case 1:
+		fmt.Println("Oh my God, I can't swim!\n")
+		FindBag()
+		belongings.Show()
+		GoTo("look around")
+		box.Events()
+	case 2:
+		fmt.Println("I hope there is no wild animal next to me!")
+		FindBag()
+		belongings.Show()
+		flashlight.Use(yesNoOptions)
+		GoTo("the forest")
+		FindAminal(&deer)
+		EatAnimal(yesNoOptions, &knife)
+		box.Events()
+	case 3:
+		fmt.Println("Oh, what a lovely place")
+		FindBag()
+		belongings.Show()
+		GoTo("....")
+		fmt.Println("No I will stay here and have a rest")
 	}
 }
