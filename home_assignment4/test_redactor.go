@@ -32,12 +32,15 @@ func Search(text []string) []string {
 func main() {
 	fmt.Println("Enter text")
 
-	var a string
-	reader := bufio.NewReader(os.Stdin)
-	a, _ = reader.ReadString('\n')
-	a = strings.TrimSpace(a)
-	text := []string{a}
+	text := make([]string, 0)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			break
+		}
+		text = append(text, line)
+	}
 
-	textToSlice := strings.Split(text[0], " ")
-	fmt.Println(Search(textToSlice))
+	fmt.Println(Search(text))
 }
