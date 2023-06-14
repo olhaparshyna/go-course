@@ -45,6 +45,12 @@ func SetValueToPlayers(p1, p2 *Player) {
 
 type Line map[int]string
 
+func (line *Line) SetValue(value string) {
+	for i := 1; i <= 3; i++ {
+		(*line)[i] = value
+	}
+}
+
 func (l *Line) CheckResult() bool {
 	if (*l)[1] != "" && (*l)[1] == (*l)[2] && (*l)[2] == (*l)[3] {
 		return true
@@ -94,23 +100,9 @@ func main() {
 
 	SetValueToPlayers(&p1, &p2)
 
-	l1 := Line{
-		1: "",
-		2: "",
-		3: "",
-	}
-
-	l2 := Line{
-		1: "",
-		2: "",
-		3: "",
-	}
-
-	l3 := Line{
-		1: "",
-		2: "",
-		3: "",
-	}
+	l1 := Line{}
+	l2 := Line{}
+	l3 := Line{}
 
 	field := Field{
 		make(map[int]*Line, 3),
@@ -120,8 +112,8 @@ func main() {
 	field.Line[2] = &l2
 	field.Line[3] = &l3
 
-	fmt.Println(field)
 	for _, f := range field.Line {
+		f.SetValue("")
 		fmt.Println(f)
 	}
 
