@@ -100,17 +100,13 @@ func main() {
 
 	SetValueToPlayers(&p1, &p2)
 
-	l1 := Line{}
-	l2 := Line{}
-	l3 := Line{}
-
 	field := Field{
-		make(map[int]*Line, 3),
+		map[int]*Line{
+			1: {},
+			2: {},
+			3: {},
+		},
 	}
-
-	field.Line[1] = &l1
-	field.Line[2] = &l2
-	field.Line[3] = &l3
 
 	for _, f := range field.Line {
 		f.SetValue("")
