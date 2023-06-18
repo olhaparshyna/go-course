@@ -21,8 +21,8 @@ func (p *Player) PutValue(f *Field) {
 
 	row, _ := strconv.Atoi(location[0])
 	number, _ := strconv.Atoi(location[1])
-	if (*f.Line[row])[number] == "" {
-		(*f.Line[row])[number] = p.Value
+	if f.Line[row][number] == "" {
+		f.Line[row][number] = p.Value
 	}
 
 	for _, f := range f.Line {
@@ -34,12 +34,19 @@ func SetValueToPlayers(p1, p2 *Player) {
 	fmt.Println(`Player1 choose your value "x" or "0"`)
 	var value string
 	fmt.Scan(&value)
-	p1.Value = value
 
-	if value == "x" {
+	switch value {
+	case "x":
+		p1.Value = "x"
 		p2.Value = "0"
-	} else {
+	case "0":
+		p1.Value = "0"
 		p2.Value = "x"
+	default:
+		p1.Value = "x"
+		p2.Value = "0"
+		fmt.Printf("Ok, I will make a choice for you! %s you get - %s\n %s you get - %s\n",
+			p1.Name, p1.Value, p2.Name, p2.Value)
 	}
 }
 
@@ -60,7 +67,7 @@ func (l *Line) CheckResult() bool {
 }
 
 type Field struct {
-	Line map[int]*Line
+	Line map[int]Line
 }
 
 func (f *Field) CheckResult() bool {
@@ -70,23 +77,23 @@ func (f *Field) CheckResult() bool {
 		}
 	}
 
-	if (*f.Line[1])[1] != "" && (*f.Line[1])[1] == (*f.Line[2])[2] && (*f.Line[1])[1] == (*f.Line[3])[3] {
+	if f.Line[1][1] != "" && f.Line[1][1] == f.Line[2][2] && f.Line[1][1] == f.Line[3][3] {
 		return true
 	}
 
-	if (*f.Line[1])[3] != "" && (*f.Line[1])[3] == (*f.Line[2])[2] && (*f.Line[1])[3] == (*f.Line[3])[1] {
+	if f.Line[1][3] != "" && f.Line[1][3] == f.Line[2][2] && f.Line[1][3] == f.Line[3][1] {
 		return true
 	}
 
-	if (*f.Line[1])[1] != "" && (*f.Line[1])[1] == (*f.Line[2])[1] && (*f.Line[1])[1] == (*f.Line[3])[1] {
+	if f.Line[1][1] != "" && f.Line[1][1] == f.Line[2][1] && f.Line[1][1] == f.Line[3][1] {
 		return true
 	}
 
-	if (*f.Line[1])[3] != "" && (*f.Line[1])[3] == (*f.Line[2])[3] && (*f.Line[1])[3] == (*f.Line[3])[3] {
+	if f.Line[1][3] != "" && f.Line[1][3] == f.Line[2][3] && f.Line[1][3] == f.Line[3][3] {
 		return true
 	}
 
-	if (*f.Line[1])[2] != "" && (*f.Line[1])[2] == (*f.Line[2])[2] && (*f.Line[1])[2] == (*f.Line[3])[2] {
+	if f.Line[1][2] != "" && f.Line[1][2] == f.Line[2][2] && f.Line[1][2] == f.Line[3][2] {
 		return true
 	}
 
@@ -101,7 +108,7 @@ func main() {
 	SetValueToPlayers(&p1, &p2)
 
 	field := Field{
-		map[int]*Line{
+		map[int]Line{
 			1: {},
 			2: {},
 			3: {},
