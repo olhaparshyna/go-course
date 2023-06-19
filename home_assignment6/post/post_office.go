@@ -1,18 +1,19 @@
 package post
 
 type Parcel interface {
-	Send(PostService string)
+	Send()
 	GetPostServiceType() string
 }
 
-type PostServices map[string]string
+const (
+	BigParcels   = "service for big parcels"
+	SmallParcels = "service for small parcels"
+	BigSize      = "big"
+	SmallSize    = "small"
+)
 
-func SortAndSend(parcels []Parcel, postServices PostServices) {
+func SortAndSend(parcels []Parcel) {
 	for _, p := range parcels {
-		if "big" == p.GetPostServiceType() {
-			p.Send(postServices["big"])
-		} else {
-			p.Send(postServices["small"])
-		}
+		p.Send()
 	}
 }

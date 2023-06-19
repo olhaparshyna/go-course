@@ -1,6 +1,9 @@
 package parcels
 
-import "fmt"
+import (
+	"fmt"
+	"go-course/home_assignment6/post"
+)
 
 type Box struct {
 	Type string
@@ -9,9 +12,14 @@ type Box struct {
 }
 
 func (b Box) GetPostServiceType() string {
-	return "big"
+	if b.Type == post.SmallSize {
+		fmt.Printf("This box is %s and could be send as a small parcel. ", b.Type)
+		return post.SmallParcels
+	}
+
+	return post.BigParcels
 }
 
-func (b Box) Send(service string) {
-	fmt.Printf("Send from: %s to %s via Service %s", b.From, b.To, service)
+func (b Box) Send() {
+	fmt.Printf("Send from: %s to %s via %s\n", b.From, b.To, b.GetPostServiceType())
 }

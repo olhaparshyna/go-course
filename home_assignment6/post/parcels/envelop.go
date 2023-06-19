@@ -1,17 +1,19 @@
 package parcels
 
-import "fmt"
+import (
+	"fmt"
+	"go-course/home_assignment6/post"
+)
 
 type Envelop struct {
-	Type string
 	From string
 	To   string
 }
 
 func (e Envelop) GetPostServiceType() string {
-	return "small"
+	return post.SmallParcels
 }
 
-func (e Envelop) Send(service string) {
-	fmt.Printf("Send from: %s to %s via Service %s", e.From, e.To, service)
+func (e Envelop) Send() {
+	fmt.Printf("Send from: %s to %s via %s\n", e.From, e.To, e.GetPostServiceType())
 }

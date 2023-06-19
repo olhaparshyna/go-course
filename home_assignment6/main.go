@@ -6,24 +6,18 @@ import (
 )
 
 func main() {
-	postServices := post.PostServices{
-		"big":   "for big parcels",
-		"small": "for small parcels",
-	}
-
 	var parcels = []post.Parcel{
 		parcels2.Box{
-			Type: "big",
+			Type: "small",
 			From: "Lviv",
 			To:   "Odessa",
 		},
 		parcels2.Envelop{
-			Type: "small",
 			From: "London",
 			To:   "Paris",
 		},
 	}
 
-	post.SortAndSend(parcels, postServices)
+	post.SortAndSend(parcels)
 
 }
