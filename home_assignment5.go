@@ -52,14 +52,14 @@ func SetValueToPlayers(p1, p2 *Player) {
 
 type Line map[int]string
 
-func (line *Line) SetValue(value string) {
+func (line Line) SetValue(value string) {
 	for i := 1; i <= 3; i++ {
-		(*line)[i] = value
+		line[i] = value
 	}
 }
 
-func (l *Line) CheckResult() bool {
-	if (*l)[1] != "" && (*l)[1] == (*l)[2] && (*l)[2] == (*l)[3] {
+func (l Line) CheckResult() bool {
+	if l[1] != "" && l[1] == l[2] && l[2] == l[3] {
 		return true
 	}
 
