@@ -1,11 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type Player struct {
@@ -15,12 +11,9 @@ type Player struct {
 
 func (p *Player) PutValue(f *Field) {
 	fmt.Println("Where do you want to put your value?")
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	location := strings.Fields(input)
-
-	row, _ := strconv.Atoi(location[0])
-	number, _ := strconv.Atoi(location[1])
+	var row int
+	var number int
+	fmt.Scanln(&row, &number)
 	if f.Line[row][number] == "" {
 		f.Line[row][number] = p.Value
 	}

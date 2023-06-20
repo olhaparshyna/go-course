@@ -2,62 +2,123 @@ package main
 
 import (
 	"fmt"
-	"go-course/home_assignment6/post"
-	parcels2 "go-course/home_assignment6/post/parcels"
-	"go-course/home_assignment6/transport"
-	"go-course/home_assignment6/transport/vehicles"
-	"math/rand"
 )
 
-func main() {
-	//post
-	var parcels = []post.Parcel{
-		parcels2.Box{
-			Type: "small",
-			From: "Lviv",
-			To:   "Odessa",
-		},
-		parcels2.Envelop{
-			From: "London",
-			To:   "Paris",
-		},
+type Player struct {
+	Name  string
+	Value string
+}
+
+func (p *Player) PutValue(f *Field) {
+	fmt.Println("Where do you want to put your value?")
+	var row int
+	var number int
+	fmt.Scanln(&row, &number)
+	if f.Line[row][number] == "" {
+		f.Line[row][number] = p.Value
 	}
 
-	post.SortAndSend(parcels)
+	for _, f := range f.Line {
+		fmt.Println(f)
+	}
+}
 
-	//transport
-	cars := vehicles.NewCars(4)
-	planes := vehicles.NewPlanes(2)
-	trains := vehicles.NewTraines(5)
+func SetValueToPlayers(p1, p2 *Player) {
+	fmt.Println(`Player1 choose your value "x" or "0"`)
+	var value string
+	fmt.Scan(&value)
 
-	vehicles := make(map[string]transport.Vehicle)
+	switch value {
+	case "x":
+		p1.Value = "x"
+		p2.Value = "0"
+	case "0":
+		p1.Value = "0"
+		p2.Value = "x"
+	default:
+		p1.Value = "x"
+		p2.Value = "0"
+		fmt.Printf("Ok, I will make a choice for you! %s you get - %s\n %s you get - %s\n",
+			p1.Name, p1.Value, p2.Name, p2.Value)
+	}
+}
 
-	for i, car := range cars {
-		i++
-		vehicles[car.GetName()+fmt.Sprintf("%d", i)] = car
+type Line map[int]string
+
+func (line Line) SetValue(value string) {
+	for i := 1; i <= 3; i++ {
+		line[i] = value
+	}
+}
+
+func (l Line) CheckResult() bool {
+	if l[1] != "" && l[1] == l[2] && l[2] == l[3] {
+		return true
 	}
 
-	for i, plane := range planes {
-		i++
-		vehicles[plane.GetName()+fmt.Sprintf("%d", i)] = plane
-	}
+	return false
+}
 
-	for i, train := range trains {
-		i++
-		vehicles[train.GetName()+fmt.Sprintf("%d", i)] = train
-	}
+type Field struct {
+	Line map[int]Line
+}
 
-	route := transport.Route{}
-
-	for _, vehicle := range vehicles {
-		switch rand.Intn(2) + 1 {
-		case 1:
-			vehicle.ChangeSpeed(transport.SpeedFaster)
-		case 2:
-			vehicle.ChangeSpeed(transport.SpeedSlower)
+func (f *Field) CheckResult() bool {
+	for _, line := range f.Line {
+		if line.CheckResult() {
+			return true
 		}
-		route.AddVehicle(vehicle)
 	}
 
-	route.ShowRouteTrace()
+	if f.Line[1][1] != "" && f.Line[1][1] == f.Line[2][2] && f.Line[1][1] == f.Line[3][3] {
+		return true
+	}
+
+	if f.Line[1][3] != "" && f.Line[1][3] == f.Line[2][2] && f.Line[1][3] == f.Line[3][1] {
+		return true
+	}
+
+	if f.Line[1][1] != "" && f.Line[1][1] == f.Line[2][1] && f.Line[1][1] == f.Line[3][1] {
+		return true
+	}
+
+	if f.Line[1][3] != "" && f.Line[1][3] == f.Line[2][3] && f.Line[1][3] == f.Line[3][3] {
+		return true
+	}
+
+	if f.Line[1][2] != "" && f.Line[1][2] == f.Line[2][2] && f.Line[1][2] == f.Line[3][2] {
+		return true
+	}
+
+	return false
+}
+
+func main() {
+	p1 := Player{Name: "Player 1"}
+
+	p2 := Player{Name: "Player 2"}
+
+	SetValueToPlayers(&p1, &p2)
+
+	field := Field{
+		map[int]Line{
+			1: {},
+			2: {},
+			3: {},
+		},
+	}
+
+	for _, f := range field.Line {
+		f.SetValue("")
+		fmt.Println(f)
+	}
+
+	for !field.CheckResult() {
+		fmt.Println("Player1 your turn")
+		p1.PutValue(&field)
+		fmt.Println("Player2 your turn")
+		p2.PutValue(&field)
+	}
+
+	fmt.Println("Game over")
 }
