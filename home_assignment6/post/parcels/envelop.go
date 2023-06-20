@@ -10,6 +10,10 @@ type Envelop struct {
 	To   string
 }
 
+func (e Envelop) GetTo() string {
+	return e.To
+}
+
 func (e Envelop) GetPostServiceType() string {
 	return post.SmallParcels
 }

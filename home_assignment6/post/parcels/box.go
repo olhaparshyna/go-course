@@ -11,6 +11,10 @@ type Box struct {
 	To   string
 }
 
+func (b Box) GetTo() string {
+	return b.To
+}
+
 func (b Box) GetPostServiceType() string {
 	if b.Type == post.SmallSize {
 		fmt.Printf("This box is %s and could be send as a small parcel. ", b.Type)
