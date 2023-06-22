@@ -22,30 +22,11 @@ func SortAndSend(parcels []Parcel) {
 }
 
 func SortByDestination(parcels []Parcel) {
-	//unique cities
-	destinations := make(map[string]bool)
-	for _, p := range parcels {
-		if _, ok := destinations[p.GetTo()]; !ok {
-			destinations[p.GetTo()] = true
-		}
-	}
-
-	destinationsSlice := make([]string, 0, len(destinations))
-
-	for c := range destinations {
-		destinationsSlice = append(destinationsSlice, c)
-	}
 
 	sorted := make(map[string][]Parcel, 0)
 
-	for _, city := range destinationsSlice {
-		parcelsToCity := make([]Parcel, 0)
-		for _, parcel := range parcels {
-			if parcel.GetTo() == city {
-				parcelsToCity = append(parcelsToCity, parcel)
-			}
-		}
-		sorted[city] = parcelsToCity
+	for _, parcel := range parcels {
+		sorted[parcel.GetTo()] = append(sorted[parcel.GetTo()], parcel)
 	}
 
 	fmt.Println(sorted)
