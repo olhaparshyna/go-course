@@ -16,11 +16,13 @@ func main() {
 	randomNumberStorage = make(chan int)
 
 	go func() {
-		for i := 0; i < 5; i++ {
+		for i := rand.Intn(100) + 1; i > 0; i-- {
 			number := rand.Intn(100)
 			randomNumberStorage <- number
 			fmt.Printf("number %d added \n", number)
 		}
+
+		close(randomNumberStorage)
 	}()
 
 	var avrgNumberStorage chan int
@@ -30,9 +32,10 @@ func main() {
 		sum := 0
 		count := 0
 
-		for i := 0; i < 5; i++ {
-			numbers := <-randomNumberStorage
-			sum += numbers
+		for number := range randomNumberStorage {
+			fmt.Println(number)
+			sum += number
+			fmt.Println(sum)
 			count++
 		}
 
