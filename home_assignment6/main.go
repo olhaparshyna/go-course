@@ -28,9 +28,10 @@ func main() {
 	post.SortByDestination(parcels)
 
 	//transport
+
 	cars := vehicles.NewCars(4)
 	planes := vehicles.NewPlanes(2)
-	trains := vehicles.NewTraines(5)
+	trains := vehicles.NewTrains(5)
 
 	vehicles := make(map[string]transport.Vehicle)
 

@@ -7,7 +7,7 @@ import (
 type Vehicle interface {
 	Stop
 	Move()
-	Stop()
+	Stop() bool
 	ChangeSpeed(speed string)
 	GetName() string
 }
@@ -39,9 +39,11 @@ func (r *Route) ShowVehicles() {
 func (r *Route) ShowRouteTrace() {
 	for _, v := range r.Vehicles {
 		fmt.Printf("Please take %s\n", v.GetName())
-		v.Stop()
-		v.Drop()
-		v.PickUp()
+		stopped := v.Stop()
+		if stopped {
+			v.Drop()
+			v.PickUp()
+		}
 		fmt.Println("Let's go \n")
 	}
 }

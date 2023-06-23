@@ -33,8 +33,9 @@ func (c Car) GetName() string {
 	return "car"
 }
 
-func (c Car) Stop() {
+func (c Car) Stop() bool {
 	fmt.Println("Let's stop and drop/pick up passangers")
+	return true
 }
 
 func (c Car) Move() {

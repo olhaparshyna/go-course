@@ -12,8 +12,8 @@ type Train struct {
 	Speed       int
 }
 
-func NewTraines(number int) []Train {
-	traines := make([]Train, number)
+func NewTrains(number int) []Train {
+	trains := make([]Train, number)
 	index := 0
 	for i := number; i > 0; i-- {
 		train := Train{
@@ -22,11 +22,11 @@ func NewTraines(number int) []Train {
 			Speed:       rand.Intn(200),
 		}
 
-		traines[index] = train
+		trains[index] = train
 		index++
 	}
 
-	return traines
+	return trains
 }
 
 func (t Train) GetName() string {
@@ -37,8 +37,9 @@ func (t Train) Move() {
 	fmt.Println("Let's go!")
 }
 
-func (t Train) Stop() {
+func (t Train) Stop() bool {
 	fmt.Println("Let's stop and drop/pick up passangers")
+	return true
 }
 
 func (t Train) ChangeSpeed(speed string) {
