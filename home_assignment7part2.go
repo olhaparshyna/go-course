@@ -25,13 +25,8 @@ func main() {
 		}
 		close(randomNumbersCh)
 
-		result := make([]int, 0)
-		for number := range minMaxCh {
-			result = append(result, number)
-		}
-
-		fmt.Printf("min %d\n", result[0])
-		fmt.Printf("max %d\n", result[1])
+		fmt.Printf("min %d\n", <-minMaxCh)
+		fmt.Printf("max %d\n", <-minMaxCh)
 
 		finish <- "finish"
 	}()
