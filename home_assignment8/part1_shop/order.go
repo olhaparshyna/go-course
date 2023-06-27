@@ -11,13 +11,9 @@ import (
 
 type Order struct {
 	Name     string
-	Item     Item
+	Price    int
+	ItemName string
 	Quantity int
-}
-
-type Item interface {
-	GetPrice() int
-	GetName() string
 }
 
 const PeriodToWaitBetweenGenerateNewOrder = 2 * time.Second
@@ -34,18 +30,26 @@ func Generate(ctx context.Context, orders chan<- Order, wg *sync.WaitGroup) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			var item Item
+			quantity := rand.Intn(5) + 1
+			var name string
+			var price int
+			//var item Item
 			switch rand.Intn(2) + 1 {
 			case 1:
-				item = items2.NewBook()
+				item := items2.NewBook()
+				name = item.GetName()
+				price = item.GetPrice() * quantity
 			case 2:
-				item = items2.NewTable()
+				item := items2.NewTable()
+				name = item.GetName()
+				price = item.GetPrice() * quantity
 			}
 
 			order := Order{
 				Name:     names[rand.Intn(len(names))],
-				Item:     item,
-				Quantity: rand.Intn(5) + 1,
+				Price:    price,
+				ItemName: name,
+				Quantity: quantity,
 			}
 
 			fmt.Printf("New order: %v\n", order)
@@ -56,6 +60,7 @@ func Generate(ctx context.Context, orders chan<- Order, wg *sync.WaitGroup) {
 
 func ProcessOrder(ctx context.Context, orders <-chan Order, wg *sync.WaitGroup) {
 	total := make(map[string]int)
+	var totalPrice int
 
 	defer wg.Done()
 
@@ -66,6 +71,7 @@ func ProcessOrder(ctx context.Context, orders <-chan Order, wg *sync.WaitGroup) 
 			for itemName, quantity := range total {
 				fmt.Printf("%s: %d\n", itemName, quantity)
 			}
+			fmt.Printf("Total price: %d\n", totalPrice)
 			return
 		case order, ok := <-orders:
 			if !ok {
@@ -73,7 +79,8 @@ func ProcessOrder(ctx context.Context, orders <-chan Order, wg *sync.WaitGroup) 
 				return
 			}
 			fmt.Printf("Process oreder: %v\n", order)
-			total[order.Item.GetName()] += order.Quantity
+			total[order.ItemName] += order.Quantity
+			totalPrice += order.Price
 		}
 	}
 }
