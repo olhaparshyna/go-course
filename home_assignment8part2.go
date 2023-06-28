@@ -18,27 +18,35 @@ import (
 )
 
 func main() {
-	winNumber := 12
+	winNumber := 3
+	numberOfPlayers := 2
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	var wg sync.WaitGroup
 
 	roundsCh := make(chan int)
-	answersCh := make(chan int)
+	answersCh := make(chan []int, 0)
+	playersCh := make([]chan int, numberOfPlayers)
+	gameOverCh := make(chan int)
 
-	wg.Add(2)
-	go generateRound(ctx, roundsCh, &wg)
-
-	go counter(ctx, roundsCh, answersCh, winNumber, &wg, cancel)
-
-	wg.Add(5)
-	for i := 1; i <= 5; i++ {
-		go player(ctx, i, answersCh, roundsCh, &wg)
+	for i := range playersCh {
+		playersCh[i] = make(chan int)
 	}
 
-	wg.Wait()
+	wg.Add(3)
+	go generateRound(ctx, roundsCh, &wg)
 
+	go counter(ctx, roundsCh, answersCh, winNumber, &wg, cancel, numberOfPlayers, gameOverCh)
+
+	for i := 0; i < numberOfPlayers; i++ {
+		wg.Add(1)
+		go player(ctx, i, playersCh, roundsCh, &wg)
+	}
+
+	go recordAnswers(ctx, numberOfPlayers, playersCh, answersCh, roundsCh, &wg)
+
+	<-gameOverCh
 	fmt.Println("Press Enter")
 	fmt.Scanln()
 }
@@ -60,7 +68,7 @@ func generateRound(ctx context.Context, roundsCh chan int, wg *sync.WaitGroup) {
 	}
 }
 
-func counter(ctx context.Context, roundsCh <-chan int, answersCh chan int, winNumber int, wg *sync.WaitGroup, cancel context.CancelFunc) {
+func counter(ctx context.Context, roundsCh <-chan int, answersCh chan []int, winNumber int, wg *sync.WaitGroup, cancel context.CancelFunc, numberOfPlayers int, gameOverCh chan int) {
 	defer wg.Done()
 
 	for {
@@ -68,18 +76,22 @@ func counter(ctx context.Context, roundsCh <-chan int, answersCh chan int, winNu
 		case <-ctx.Done():
 			return
 		case <-roundsCh:
-			for i := 1; i <= 5; i++ {
-				answer := <-answersCh
-				if answer == winNumber {
-					fmt.Printf("GAME OVER. WinNumber was %d\n", winNumber)
-					cancel()
+			for i := 0; i <= numberOfPlayers; i++ {
+				answers := <-answersCh
+				for _, num := range answers {
+					if num == winNumber {
+						fmt.Printf("GAME OVER. WinNumber was %d\n", winNumber)
+						gameOverCh <- 1
+						cancel()
+						return
+					}
 				}
 			}
 		}
 	}
 }
 
-func player(ctx context.Context, id int, answersCh chan int, roundsCh chan int, wg *sync.WaitGroup) {
+func player(ctx context.Context, id int, playersCh []chan int, roundsCh chan int, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for {
@@ -88,9 +100,31 @@ func player(ctx context.Context, id int, answersCh chan int, roundsCh chan int, 
 			return
 		default:
 			round := <-roundsCh
-			answer := rand.Intn(15) + 1
+			answer := rand.Intn(3) + 1
 			fmt.Printf("Player %d in round %d, entered number %d: ", id, round, answer)
-			answersCh <- answer
+			playersCh[id] <- answer
+		}
+	}
+}
+
+func recordAnswers(ctx context.Context, numberOfPlayers int, playersCh []chan int, answersCh chan []int, roundsCh chan int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	answers := make([]int, numberOfPlayers)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			round := <-roundsCh
+
+			for i := 0; i < numberOfPlayers; i++ {
+				answer := <-playersCh[i]
+				fmt.Printf("Player %d in round %d, entered number %d\n", i, round, answer)
+				answers[i] = answer
+			}
+
+			answersCh <- answers
 		}
 	}
 }
