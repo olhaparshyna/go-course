@@ -10,7 +10,7 @@ import (
 )
 
 type Order struct {
-	Name     string
+	Customer string
 	Price    int
 	ItemName string
 	Quantity int
@@ -33,7 +33,7 @@ func Generate(ctx context.Context, orders chan<- Order, wg *sync.WaitGroup) {
 			quantity := rand.Intn(5) + 1
 			var name string
 			var price int
-			//var item Item
+
 			switch rand.Intn(2) + 1 {
 			case 1:
 				item := items2.NewBook()
@@ -46,7 +46,7 @@ func Generate(ctx context.Context, orders chan<- Order, wg *sync.WaitGroup) {
 			}
 
 			order := Order{
-				Name:     names[rand.Intn(len(names))],
+				Customer: names[rand.Intn(len(names))],
 				Price:    price,
 				ItemName: name,
 				Quantity: quantity,

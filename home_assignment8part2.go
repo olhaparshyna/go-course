@@ -18,10 +18,9 @@ import (
 )
 
 func main() {
-	winNumber := 3
+	winNumber := 1
 	numberOfPlayers := 2
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	var wg sync.WaitGroup
 
@@ -34,19 +33,26 @@ func main() {
 		playersCh[i] = make(chan int)
 	}
 
-	wg.Add(3)
+	wg.Add(1)
 	go generateRound(ctx, roundsCh, &wg)
-
-	go counter(ctx, roundsCh, answersCh, winNumber, &wg, cancel, numberOfPlayers, gameOverCh)
 
 	for i := 0; i < numberOfPlayers; i++ {
 		wg.Add(1)
 		go player(ctx, i, playersCh, roundsCh, &wg)
 	}
 
+	wg.Add(1)
 	go recordAnswers(ctx, numberOfPlayers, playersCh, answersCh, roundsCh, &wg)
 
+	wg.Add(1)
+	go counter(ctx, roundsCh, answersCh, winNumber, &wg, cancel, numberOfPlayers, gameOverCh)
+
 	<-gameOverCh
+	cancel()
+	fmt.Printf("GAME OVER. WinNumber was %d\n", winNumber)
+
+	wg.Wait()
+
 	fmt.Println("Press Enter")
 	fmt.Scanln()
 }
@@ -80,9 +86,7 @@ func counter(ctx context.Context, roundsCh <-chan int, answersCh chan []int, win
 				answers := <-answersCh
 				for _, num := range answers {
 					if num == winNumber {
-						fmt.Printf("GAME OVER. WinNumber was %d\n", winNumber)
 						gameOverCh <- 1
-						cancel()
 						return
 					}
 				}
