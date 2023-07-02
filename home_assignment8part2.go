@@ -102,8 +102,7 @@ func player(ctx context.Context, id int, playersCh []chan int, roundsCh chan int
 		select {
 		case <-ctx.Done():
 			return
-		default:
-			round := <-roundsCh
+		case round := <-roundsCh:
 			answer := rand.Intn(3) + 1
 			fmt.Printf("Player %d in round %d, entered number %d: ", id, round, answer)
 			playersCh[id] <- answer
@@ -119,8 +118,7 @@ func recordAnswers(ctx context.Context, numberOfPlayers int, playersCh []chan in
 		select {
 		case <-ctx.Done():
 			return
-		default:
-			round := <-roundsCh
+		case round := <-roundsCh:
 
 			for i := 0; i < numberOfPlayers; i++ {
 				answer := <-playersCh[i]
