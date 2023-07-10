@@ -34,13 +34,55 @@ type weatherResource struct {
 }
 
 func (wr *weatherResource) getWeatherByCity(w http.ResponseWriter, r *http.Request) {
-	url, err := url.Parse(weatherBaseUrl)
+	city := mux.Vars(r)["city"]
+
+	weatherData, err := getWeatherData(city)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	err = json.NewEncoder(w).Encode(weatherData)
 
-	city := mux.Vars(r)["city"]
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+type WeatherData struct {
+	TemperatureC float64 `json:"temp_c"`
+	TemperatureF float64 `json:"temp_f"`
+	Condition    struct {
+		Text string `json:"text"`
+	} `json:"condition"`
+	Humidity int `json:"humidity"`
+}
+
+type Location struct {
+	Name string `json:"name"`
+}
+
+type Condition struct {
+	Text string `json:"text"`
+}
+
+type Current struct {
+	TemperatureC float64   `json:"temp_c"`
+	TemperatureF float64   `json:"temp_f"`
+	Condition    Condition `json:"condition"`
+	Humidity     int       `json:"humidity"`
+}
+
+type WeatherResponse struct {
+	Location Location `json:"location"`
+	Current  Current  `json:"current"`
+}
+
+func getWeatherData(city string) (*WeatherData, error) {
+	url, err := url.Parse(weatherBaseUrl)
+	if err != nil {
+		return nil, err
+	}
 
 	q := url.Query()
 	q.Set("key", apiKey)
@@ -52,27 +94,11 @@ func (wr *weatherResource) getWeatherByCity(w http.ResponseWriter, r *http.Reque
 	defer resp.Body.Close()
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	type WeatherResponse struct {
-		Location struct {
-			Name string `json:"name"`
-		} `json:"location"`
-		Current struct {
-			TemperatureC float64 `json:"temp_c"`
-			TemperatureF float64 `json:"temp_f"`
-			Condition    struct {
-				Text string `json:"text"`
-			} `json:"condition"`
-			Humidity int `json:"humidity"`
-		} `json:"current"`
+		return nil, err
 	}
 
 	var weatherResp WeatherResponse
@@ -80,29 +106,15 @@ func (wr *weatherResource) getWeatherByCity(w http.ResponseWriter, r *http.Reque
 	err = json.NewDecoder(resp.Body).Decode(&weatherResp)
 
 	if err != nil {
-		log.Default().Printf("Failed to parse exchange response body: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
-	weatherData := struct {
-		TemperatureC float64 `json:"temp_c"`
-		TemperatureF float64 `json:"temp_f"`
-		Condition    struct {
-			Text string `json:"text"`
-		} `json:"condition"`
-		Humidity int `json:"humidity"`
-	}{
+	weatherData := &WeatherData{
 		TemperatureC: weatherResp.Current.TemperatureC,
 		TemperatureF: weatherResp.Current.TemperatureF,
 		Condition:    weatherResp.Current.Condition,
 		Humidity:     weatherResp.Current.Humidity,
 	}
 
-	err = json.NewEncoder(w).Encode(weatherData)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	return weatherData, nil
 }

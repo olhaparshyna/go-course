@@ -43,10 +43,6 @@ type taskHandler struct {
 
 func (t *taskHandler) getTasksByDate(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Handling request")
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	dateStr := r.URL.Query().Get("date")
 	fmt.Println(dateStr)
