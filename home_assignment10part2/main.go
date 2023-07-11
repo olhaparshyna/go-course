@@ -17,11 +17,16 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
+type RequestBody struct {
+	Lang string `json:"lang"`
+	Text string `json:"text"`
+}
+
+type TranslationResponse struct {
+	Text string `json:"text"`
+}
+
 func translate(w http.ResponseWriter, r *http.Request) {
-	type RequestBody struct {
-		Lang string `json:"lang"`
-		Text string `json:"text"`
-	}
 
 	var reqBody RequestBody
 
@@ -46,30 +51,28 @@ func translate(w http.ResponseWriter, r *http.Request) {
 
 	translated, err := google_translate.Translator(value)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var response TranslationResponse
+
+	prettyJSON, err := json.MarshalIndent(translated, "", "\t")
+	if err != nil {
 		panic(err)
-	} else {
-		type TranslationResponse struct {
-			Text string `json:"text"`
-		}
+	}
 
-		var response TranslationResponse
-		prettyJSON, err := json.MarshalIndent(translated, "", "\t")
-		if err != nil {
-			panic(err)
-		}
+	err = json.Unmarshal(prettyJSON, &response)
 
-		err = json.Unmarshal(prettyJSON, &response)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = json.NewEncoder(w).Encode(response)
-		if err != nil {
-			log.Default().Printf("Something went wrong while writing response: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		log.Default().Printf("Something went wrong while writing response: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
