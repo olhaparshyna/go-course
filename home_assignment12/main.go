@@ -26,14 +26,6 @@ func (lc LineCounter) ProcessText(text string) int {
 	return lines
 }
 
-type Processor struct {
-	textProcessor TextProcessor
-}
-
-func (p Processor) ProcessText(text string) int {
-	return p.textProcessor.ProcessText(text)
-}
-
 // decorator
 type TextModifier interface {
 	ModifyText(text string) string
@@ -93,13 +85,13 @@ func main() {
 	fmt.Scanln(&answer)
 
 	if answer == "l" {
-		processor := Processor{&LineCounter{}}
-		fmt.Println(processor.ProcessText(content))
+		lineCounter := LineCounter{}
+		fmt.Println(lineCounter.ProcessText(content))
 	}
 
 	if answer == "w" {
-		processor := Processor{&WordCounter{}}
-		fmt.Println(processor.ProcessText(content))
+		wordCounter := WordCounter{}
+		fmt.Println(wordCounter.ProcessText(content))
 	}
 
 	var modifier TextModifier = BaseText{}
@@ -111,8 +103,6 @@ func main() {
 		modifier = TextWithoutTags{
 			parent: modifier,
 		}
-
-		content = modifier.ModifyText(content)
 	}
 
 	fmt.Println("Make text uppercase?")
@@ -122,9 +112,9 @@ func main() {
 		modifier = TextUpperCase{
 			parent: modifier,
 		}
-
-		content = modifier.ModifyText(content)
 	}
+
+	content = modifier.ModifyText(content)
 
 	fmt.Println(content)
 

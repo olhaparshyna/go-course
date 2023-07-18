@@ -17,7 +17,7 @@ func main() {
 
 	for _, paragraph := range paragraphs {
 		//find all words beginning with vowels
-		re := regexp.MustCompile(`(?:^|\s)([аеиоуыэюя][а-я]*)`)
+		re := regexp.MustCompile(`(?i:^|\s)([аеєиоуюяіїАЕЄИОУЯЮІ][а-я]*)`)
 		result := re.FindAllString(paragraph, -1)
 
 		for _, number := range result {
