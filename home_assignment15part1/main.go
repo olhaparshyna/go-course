@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"go-course/home_assignment15part1/fileSystem"
+	"time"
 )
 
 type FileSub struct {
@@ -22,7 +23,9 @@ func main() {
 
 	fileMonitoringService.AddSubscriber(FileSub{})
 
-	fileMonitoringService.FileMonitor()
+	go fileMonitoringService.FileMonitor()
+
+	time.Sleep(time.Second * 5)
 
 	fileMonitoringService.Stop()
 }

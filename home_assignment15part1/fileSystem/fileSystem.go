@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"io/fs"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
@@ -17,14 +18,17 @@ type Service struct {
 	subscribers chan Subscriber
 	events      chan any
 	stop        chan struct{}
+	wg          sync.WaitGroup
 }
 
 func NewService() *Service {
 	s := &Service{
 		subscribers: make(chan Subscriber),
-		events:      make(chan any),
+		events:      make(chan any, 10),
 		stop:        make(chan struct{}),
 	}
+
+	s.wg.Add(2)
 
 	go s.processEvents()
 
@@ -45,6 +49,7 @@ func (s *Service) processEvents() {
 		case s := <-s.subscribers:
 			subscribers[s.GetId()] = s
 		case <-s.stop:
+			s.wg.Done()
 			fmt.Println("Got stop signal")
 			s.stop <- struct{}{}
 			return
@@ -57,6 +62,7 @@ func (s *Service) AddSubscriber(sub Subscriber) {
 }
 
 func (s *Service) FileMonitor() {
+
 	directoryPath := "../home_assignment15part2"
 
 	initialFiles := make(map[string]struct{})
@@ -83,8 +89,11 @@ func (s *Service) FileMonitor() {
 
 		select {
 		case <-s.stop:
+			s.wg.Done()
+			fmt.Println("Got stop signal2")
 			return
 		default:
+			fmt.Println("not stop signal2")
 			time.Sleep(time.Second)
 		}
 	}
@@ -93,7 +102,8 @@ func (s *Service) FileMonitor() {
 func (s *Service) Stop() {
 	fmt.Println("Sending stop signal")
 	s.stop <- struct{}{}
-	<-s.stop
+
+	s.wg.Wait()
 }
 
 func getFileStructure(directoryPath string) map[string]struct{} {
