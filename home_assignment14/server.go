@@ -1,17 +1,19 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"go-course/home_assignment14/controllers"
-	"go-course/home_assignment14/middleware"
-	"log"
-	"net/http"
+	"github.com/joho/godotenv"
+	"go-course/home_assignment14/config"
+	"go-course/home_assignment14/repository"
 )
 
-func main() {
-	r := mux.NewRouter()
-	r.Use(middleware.IsValidApiKey)
-	r.HandleFunc("/order", controllers.Create).Methods(http.MethodPost)
+func initApp() (*config.Config, *repository.Processor, error) {
+	err := godotenv.Load()
+	if err != nil {
+		return nil, nil, err
+	}
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	conf := config.New()
+	processor := repository.NewProcessor(&repository.Storage)
+
+	return conf, processor, nil
 }
