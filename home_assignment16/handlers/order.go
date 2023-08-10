@@ -16,7 +16,7 @@ func Create(storage repository.Storage, data requests.CreateRequestData) (*repos
 		userId = newUserId
 	}
 
-	err, order := storage.OrderStore(userId, data.Email, data.Items)
+	err, order := storage.OrderStore(userId, data.Items)
 
 	if err != nil {
 		return nil, err

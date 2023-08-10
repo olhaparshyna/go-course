@@ -13,7 +13,7 @@ import (
 
 func main() {
 	db := database.InitDB()
-	redis, conf, storage, err := initApp(db)
+	conf, storage, err := initApp(db)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -21,7 +21,7 @@ func main() {
 	r := mux.NewRouter()
 	r.Use(middleware.IsValidApiKey(conf))
 	r.HandleFunc("/product", func(w http.ResponseWriter, r *http.Request) {
-		responseData, err := handlers.ProductList(*storage, *redis)
+		responseData, err := handlers.ProductList(*storage)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

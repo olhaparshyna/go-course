@@ -12,7 +12,7 @@ type Order struct {
 	Items  []string  `json:"items"`
 }
 
-func (storage *Storage) OrderStore(id int64, email string, items []string) (error, *Order) {
+func (storage *Storage) OrderStore(id int64, items []string) (error, *Order) {
 	order := Order{
 		Id:     uuid.New(),
 		UserId: id,
