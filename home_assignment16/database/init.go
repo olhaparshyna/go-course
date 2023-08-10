@@ -26,8 +26,9 @@ func InitDB() *sql.DB {
 
 	createOrderTableQuery := `CREATE TABLE IF NOT EXISTS orders (
 			id VARCHAR(255) PRIMARY KEY,
-			userId BIGINT NOT NULL,
-			items TEXT
+			userId INT NOT NULL,
+			items TEXT, 
+            FOREIGN KEY (userId) REFERENCES users (id)
 		);`
 
 	createUserTableQuery := `
@@ -44,19 +45,19 @@ func InitDB() *sql.DB {
 			price DECIMAL(10, 2)
 		);`
 
-	_, err = db.Exec(createOrderTableQuery)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Default().Println("Order table created or exists")
-
 	_, err = db.Exec(createUserTableQuery)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	log.Default().Println("User table created or exists")
+
+	_, err = db.Exec(createOrderTableQuery)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Default().Println("Order table created or exists")
 
 	_, err = db.Exec(createProductTableQuery)
 	if err != nil {
