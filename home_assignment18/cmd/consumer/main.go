@@ -19,6 +19,19 @@ func main() {
 		`guest`,
 	)
 
+	small := make([]map[string]int, 0)
+	middle := make([]map[string]int, 0)
+	big := make([]map[string]int, 0)
+
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	go func() {
+		for range ticker.C {
+			log.Printf("small: %v, middle: %v, big: %v", small, middle, big)
+		}
+	}()
+
 	for _, c := range cp.Consumers() {
 		if err := c.InitStream(context.Background()); err != nil {
 			log.Println(err)
@@ -36,11 +49,19 @@ func main() {
 
 			d := <-c.GetStream()
 
-			res := make(map[string]any)
+			res := make(map[string]int)
 			if err := json.Unmarshal(d.Body, &res); err != nil {
 				log.Println(err)
 			}
-			log.Println(res)
+
+			switch size := res["orange"]; {
+			case size < 300:
+				small = append(small, res)
+			case size >= 300 && size < 400:
+				middle = append(middle, res)
+			case size >= 400:
+				big = append(big, res)
+			}
 
 			if err := d.Ack(false); err != nil {
 				log.Println(err)
