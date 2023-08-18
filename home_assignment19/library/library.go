@@ -1,9 +1,5 @@
 package library
 
-type Library interface {
-	FindBook(title string) *Book
-}
-
 type LibraryStorage struct {
 	books map[string]Book
 }

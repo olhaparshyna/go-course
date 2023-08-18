@@ -1,9 +1,5 @@
 package library
 
-type LibraryItem interface {
-	GetInfo() string
-}
-
 type Book struct {
 	Title string
 }

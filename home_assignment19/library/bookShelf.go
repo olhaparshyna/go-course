@@ -2,9 +2,8 @@ package library
 
 import "fmt"
 
-type Shelf interface {
-	AddItem(item LibraryItem)
-	RemoveItem(item LibraryItem)
+type LibraryItem interface {
+	GetInfo() string
 }
 
 type BookShelf struct {

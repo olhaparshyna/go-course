@@ -5,6 +5,15 @@ import (
 	"fmt"
 )
 
+type Library interface {
+	FindBook(title string) *Book
+}
+
+type Shelf interface {
+	AddItem(item LibraryItem)
+	RemoveItem(item LibraryItem)
+}
+
 type Manager struct {
 	Database Library
 	Shelf    Shelf
