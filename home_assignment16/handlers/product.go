@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func ProductList(storage repository.Storage) ([]repository.Product, error) {
+func ProductList(storage repository.ProductRepo) ([]repository.Product, error) {
 	products, err := storage.GetAllProducts()
 
 	if err != nil {

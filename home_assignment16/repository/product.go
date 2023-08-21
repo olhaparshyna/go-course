@@ -1,10 +1,27 @@
 package repository
 
 import (
+	"database/sql"
 	"encoding/json"
 	"github.com/mediocregopher/radix/v3"
 	"log"
 )
+
+type ProductRepo interface {
+	GetAllProducts() ([]Product, error)
+}
+
+type ProductStorage struct {
+	*sql.DB
+	*radix.Pool
+}
+
+func NewProductStorage(db *sql.DB, redis *radix.Pool) *ProductStorage {
+	return &ProductStorage{
+		DB:   db,
+		Pool: redis,
+	}
+}
 
 type Product struct {
 	Id    int64   `json:"id"`
@@ -12,7 +29,7 @@ type Product struct {
 	Price float64 `json:"price"`
 }
 
-func (storage *Storage) GetAllProducts() ([]Product, error) {
+func (storage *ProductStorage) GetAllProducts() ([]Product, error) {
 	var products []Product
 	var jsonFromRedis []byte
 

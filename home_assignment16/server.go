@@ -21,7 +21,9 @@ func initApp(db *sql.DB) (*config.Config, *repository.Storage, error) {
 		return nil, nil, err
 	}
 
-	storage := repository.NewStorage(db, redis)
+	productStorage := repository.NewProductStorage(db, redis)
+
+	storage := repository.NewStorage(db, redis, productStorage)
 
 	return conf, storage, nil
 }

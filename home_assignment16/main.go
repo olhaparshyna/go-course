@@ -21,7 +21,7 @@ func main() {
 	r := mux.NewRouter()
 	r.Use(middleware.IsValidApiKey(conf))
 	r.HandleFunc("/product", func(w http.ResponseWriter, r *http.Request) {
-		responseData, err := handlers.ProductList(*storage)
+		responseData, err := handlers.ProductList(storage.ProductRepo)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
