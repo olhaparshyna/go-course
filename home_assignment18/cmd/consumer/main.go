@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"go-course/home_assignment18/consume"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -19,6 +20,12 @@ func main() {
 		`guest`,
 	)
 
+	var (
+		smallMu  sync.Mutex
+		middleMu sync.Mutex
+		bigMu    sync.Mutex
+	)
+
 	small := make([]map[string]int, 0)
 	middle := make([]map[string]int, 0)
 	big := make([]map[string]int, 0)
@@ -28,7 +35,7 @@ func main() {
 
 	go func() {
 		for range ticker.C {
-			log.Printf("small: %v, middle: %v, big: %v", small, middle, big)
+			log.Printf("small: %d, middle: %d, big: %d", len(small), len(middle), len(big))
 		}
 	}()
 
@@ -56,11 +63,17 @@ func main() {
 
 			switch size := res["orange"]; {
 			case size < 300:
+				smallMu.Lock()
 				small = append(small, res)
+				smallMu.Unlock()
 			case size >= 300 && size < 400:
+				middleMu.Lock()
 				middle = append(middle, res)
+				middleMu.Unlock()
 			case size >= 400:
+				bigMu.Lock()
 				big = append(big, res)
+				bigMu.Unlock()
 			}
 
 			if err := d.Ack(false); err != nil {
