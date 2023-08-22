@@ -35,7 +35,16 @@ func main() {
 
 	go func() {
 		for range ticker.C {
-			log.Printf("small: %d, middle: %d, big: %d", len(small), len(middle), len(big))
+			smallMu.Lock()
+			smallNumber := len(small)
+			smallMu.Unlock()
+			middleMu.Lock()
+			middleNumber := len(middle)
+			middleMu.Unlock()
+			bigMu.Lock()
+			bigNumber := len(big)
+			bigMu.Unlock()
+			log.Printf("small: %d, middle: %d, big: %d", smallNumber, middleNumber, bigNumber)
 		}
 	}()
 
